@@ -1,25 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { useState, useEffect } from "react"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+import "./App.css"
 
-export default App;
+import ParticipantEntries from "./components/ParticipantEntries"
+import RaceTrack from "./components/RaceTrack"
+import RunningRaceContext from "./components/context/runningRaceContext"
+
+const App = () => {
+  const localStorageRunnersData = JSON.parse(localStorage.getItem("localStorageRunnersData"))
+  const [runnersData, setRunnersData ] = useState(localStorageRunnersData !== null ? localStorageRunnersData : [])
+
+  const onAddRunner = (data) => {
+    setRunnersData(prevRunnersData => [...prevRunnersData, data])
+  }
+
+  const onDeleteRunner = (id) => {
+    const filteredRunners = runnersData.filter(eachRunner => eachRunner.id !== id)
+    setRunnersData(filteredRunners)
+  }
+
+  useEffect(() => {
+    localStorage.setItem("localStorageRunnersData", JSON.stringify(runnersData))
+  },)
+
+  const onUpdateRunnersData = (emptyList) => {
+    setRunnersData(emptyList)
+  }
+  
+  return(
+    <RunningRaceContext.Provider value={{runnersData, onUpdateRunnersData, onAddRunner, onDeleteRunner}}>
+
+      <BrowserRouter>
+        <Routes>
+          <Route exact path="/" element={<ParticipantEntries />} />
+          <Route exact path="/race-track" element={<RaceTrack />} />
+        </Routes>
+      </BrowserRouter>
+    </RunningRaceContext.Provider>
+)}
+
+export default App
